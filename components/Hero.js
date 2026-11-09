@@ -19,7 +19,7 @@ export default function Hero() {
             filtered by your department, year, club and how urgent it really is.
           </p>
           <div className="hero-cta">
-            <a href="#join" className="btn btn-primary">Join with your college email <ArrowRight size={17} /></a>
+            <a href="/signup" className="btn btn-primary">Join with your college email <ArrowRight size={17} /></a>
             <a href="#try" className="btn btn-ghost">Try the filters</a>
           </div>
           <p className="fine">College emails only. One feed. No group-chat noise.</p>
