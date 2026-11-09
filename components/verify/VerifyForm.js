@@ -99,10 +99,7 @@ export default function VerifyForm({ defaults, detected }) {
 
       <div className="field">
         <span>Student ID card</span>
-        <div className="id-grid">
-          <IdPhoto name="id_front" label="Front" required />
-          <IdPhoto name="id_back" label="Back" />
-        </div>
+        <IdPhoto name="id_front" label="Front" required />
         <small className="field-hint">A clear photo where your name, photo and college are readable. Only CampusCast admins can see it.</small>
       </div>
 

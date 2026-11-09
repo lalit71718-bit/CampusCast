@@ -6,12 +6,13 @@ import { BRANCHES, YEARS, parseStudentEmail } from "../../lib/college";
 const MAX_BYTES = 4 * 1024 * 1024;
 const TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 
-function checkImage(file, label, required) {
+// Only the front of the ID card is collected.
+function checkImage(file) {
   if (!file || typeof file === "string" || file.size === 0) {
-    return required ? `Please add a photo of the ${label} of your ID card.` : null;
+    return "Please add a photo of the front of your ID card.";
   }
-  if (!TYPES[file.type]) return `The ${label} photo must be a JPG, PNG or WebP image.`;
-  if (file.size > MAX_BYTES) return `The ${label} photo is larger than 4 MB. Try a smaller photo.`;
+  if (!TYPES[file.type]) return "The photo must be a JPG, PNG or WebP image.";
+  if (file.size > MAX_BYTES) return "The photo is larger than 4 MB. Try a smaller photo.";
   return null;
 }
 
@@ -20,7 +21,6 @@ export async function submitVerification(_prev, formData) {
   let branch = String(formData.get("branch") || "");
   const year = Number(formData.get("year"));
   const front = formData.get("id_front");
-  const back = formData.get("id_back");
   const values = { fullName, branch, year: year || "" };
 
   const supabase = await createClient();
@@ -35,7 +35,7 @@ export async function submitVerification(_prev, formData) {
   if (fullName.length < 2) return { error: "Please enter your full name as it appears on your ID card.", values };
   if (!BRANCHES.includes(branch)) return { error: "Please choose your branch.", values };
   if (!YEARS.includes(year)) return { error: "Please choose your year.", values };
-  const fileError = checkImage(front, "front", true) || checkImage(back, "back", false);
+  const fileError = checkImage(front);
   if (fileError) return { error: fileError, values };
 
   const stamp = Date.now();
@@ -46,10 +46,9 @@ export async function submitVerification(_prev, formData) {
     return path;
   };
 
-  let frontPath, backPath = null;
+  let frontPath;
   try {
     frontPath = await upload(front, "front");
-    if (back && typeof back !== "string" && back.size > 0) backPath = await upload(back, "back");
   } catch (e) {
     return { error: `Couldn't upload your ID card (${e.message}). Please try again.`, values };
   }
@@ -59,7 +58,7 @@ export async function submitVerification(_prev, formData) {
     p_branch: branch,
     p_year: year,
     p_id_card_front: frontPath,
-    p_id_card_back: backPath,
+    p_id_card_back: null,
     p_batch: fromEmail?.batch ?? null,
     p_usn: fromEmail?.usn ?? null,
   });

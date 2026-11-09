@@ -75,7 +75,7 @@ Accounts are handled by [Supabase Auth](https://supabase.com/docs/guides/auth). 
 
 - Sign-up only accepts college emails: `@bmsit.in`, plus domains ending in `.edu`, `.edu.<country>` or `.ac.<country>` (e.g. `iitb.ac.in`).
 - BMSIT student emails are read automatically. `25ug1byai282@bmsit.in` means batch 2025, undergraduate, college code 1BY, branch `ai` (AI & Machine Learning), roll 282, so USN `1BY25AI282`. The branch is filled in and locked, the year of study is worked out from the batch (it can still be changed, e.g. for lateral entry), and batch and USN are saved on the profile. Branch codes live in `lib/college.js` (`cs` Computer Science & Engineering, `cv` Civil, `ai` AI & ML, plus the other VTU codes). For a college that uses another domain, add it in the SQL Editor: `insert into public.allowed_college_domains (domain) values ('mycollege.in');`. The rule is enforced inside Supabase, so it can't be bypassed by calling the API directly.
-- After confirming their email, students land on `/verify` and enter full name, branch and year, and upload photos of their student ID card (front required, back optional).
+- After confirming their email, students land on `/verify` and enter full name, branch and year, and upload a photo of the front of their student ID card.
 - To review: open **Table Editor > profiles**, filter `status = pending`, view the card in **Storage > id-cards > (user id)**, then set `status` to `verified`, or to `rejected` with a `review_note` the student will see.
 
 Pages: `/signup` and `/signin`. By default Supabase emails a confirmation link before the first sign-in; turn off **Confirm email** under **Authentication > Providers > Email** to sign users in straight after sign-up.
