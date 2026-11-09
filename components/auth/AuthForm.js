@@ -30,13 +30,15 @@ export default function AuthForm({ mode, defaultEmail = "", notice = "" }) {
       <label className="field">
         <span>College email</span>
         <input name="email" type="email" autoComplete="email" required
-          defaultValue={state?.email ?? defaultEmail} placeholder="you@yourcollege.edu" />
+          defaultValue={state?.email ?? defaultEmail} placeholder="25ug1byai282@bmsit.in" />
+        {isSignUp && <small className="field-hint">Use your college email. Personal emails like Gmail aren&apos;t accepted.</small>}
       </label>
       <label className="field">
         <span>Password</span>
         <input name="password" type="password" required minLength={isSignUp ? 8 : undefined}
           autoComplete={isSignUp ? "new-password" : "current-password"}
           placeholder={isSignUp ? "At least 8 characters" : "Your password"} />
+        {!isSignUp && <Link href="/forgot-password" className="forgot-link">Forgot password?</Link>}
       </label>
 
       {message && <p className="form-msg" role="alert">{message}</p>}

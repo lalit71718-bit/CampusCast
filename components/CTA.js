@@ -12,7 +12,7 @@ export default function CTA() {
             <p style={z}>Be part of the pilot. Bring your department, your club, and your group chats.</p>
             {/* Plain GET form: carries the email over to the sign-up page. */}
             <form className="form" action="/signup">
-              <input type="email" name="email" required placeholder="you@yourcollege.edu" aria-label="College email" />
+              <input type="email" name="email" required placeholder="25ug1byai282@bmsit.in" aria-label="College email" />
               <button className="btn" type="submit">Join the pilot <ArrowRight size={16} /></button>
             </form>
             <small>College emails only. No likes. No feed noise.</small>
