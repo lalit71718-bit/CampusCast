@@ -6,7 +6,7 @@ export default function Flow() {
       <div className="container">
         <div className="sec-head" data-reveal>
           <p className="eyebrow">How it works</p>
-          <h2 className="display">Publish once. Reach the <em className="accent">right</em> students.</h2>
+          <h2 className="display">Publish once. Reach the <em>right</em> students.</h2>
         </div>
         <div className="flow rot pins colors">
           {flow.map((f) => (

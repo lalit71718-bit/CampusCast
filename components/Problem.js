@@ -6,7 +6,7 @@ export default function Problem() {
       <div className="container">
         <div className="sec-head" data-reveal>
           <p className="eyebrow">The problem</p>
-          <h2 className="display">Important updates get <em className="accent">lost</em> in the noise.</h2>
+          <h2 className="display">Important updates get <em>lost</em> in the noise.</h2>
           <p className="lede">Campus information lives in a dozen places and none of them tell you what matters. So students miss the one thing they needed.</p>
         </div>
         <div className="chaos-grid rot pins colors" data-stagger>

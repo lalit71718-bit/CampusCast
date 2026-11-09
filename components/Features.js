@@ -1,5 +1,8 @@
-import * as Icons from "lucide-react";
+import { BookOpen, Building2, Code2, Drama, FileText, HeartHandshake, Presentation, Repeat2, Users } from "lucide-react";
 import { features } from "../lib/data";
+
+// Named imports so a renamed or missing icon fails the build instead of crashing the page.
+const Icons = { BookOpen, Building2, Code2, Drama, FileText, HeartHandshake, Presentation, Repeat2, Users };
 
 const tint = { Official: "var(--y)", Events: "var(--pk)", Community: "var(--gn)" };
 
@@ -9,7 +12,7 @@ export default function Features() {
       <div className="container">
         <div className="sec-head" data-reveal>
           <p className="eyebrow">Nine sections, one platform</p>
-          <h2 className="display">Everything campus life runs on, in <em className="accent">one</em> place.</h2>
+          <h2 className="display">Everything campus life runs on, in <em>one</em> place.</h2>
           <p className="lede">Official channels, events and community tools all share the same announcement and targeting engine.</p>
         </div>
         <div className="f-grid rot pins" data-stagger>

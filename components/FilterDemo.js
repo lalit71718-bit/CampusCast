@@ -28,7 +28,7 @@ export default function FilterDemo() {
       <div className="container">
         <div className="sec-head" data-reveal>
           <p className="eyebrow">Try it yourself</p>
-          <h2 className="display">Ten notices went out today. How many are <em className="accent">yours</em>?</h2>
+          <h2 className="display">Ten notices went out today. How many are <em>yours</em>?</h2>
           <p className="lede">Set up a student profile and watch the noise fall away. This is the same targeting logic the real feed runs on.</p>
         </div>
         <div className="demo-grid">
@@ -37,15 +37,15 @@ export default function FilterDemo() {
             <p className="hint">Tap to change who you are.</p>
             <div className="group"><span className="eyebrow">Department</span>
               <div className="opts">{depts.map((d) => (
-                <button key={d} className={`opt ${dept === d ? "on" : ""}`} onClick={() => setDept(d)}>{d}</button>
+                <button key={d} type="button" aria-pressed={dept === d} className={`opt ${dept === d ? "on" : ""}`} onClick={() => setDept(d)}>{d}</button>
               ))}</div></div>
             <div className="group"><span className="eyebrow">Year</span>
               <div className="opts">{years.map((y) => (
-                <button key={y} className={`opt ${year === y ? "on" : ""}`} onClick={() => setYear(y)}>Year {y}</button>
+                <button key={y} type="button" aria-pressed={year === y} className={`opt ${year === y ? "on" : ""}`} onClick={() => setYear(y)}>Year {y}</button>
               ))}</div></div>
             <div className="group"><span className="eyebrow">Clubs you follow</span>
               <div className="opts">{clubs.map((c) => (
-                <button key={c} className={`opt ${mine.includes(c) ? "on" : ""}`} onClick={() => toggleClub(c)}>{c}</button>
+                <button key={c} type="button" aria-pressed={mine.includes(c)} className={`opt ${mine.includes(c) ? "on" : ""}`} onClick={() => toggleClub(c)}>{c}</button>
               ))}</div></div>
             <div className={`switch ${urgent ? "on" : ""}`} onClick={() => setUrgent((u) => !u)} role="switch" aria-checked={urgent} tabIndex={0}
               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setUrgent((u) => !u)}>
@@ -59,7 +59,7 @@ export default function FilterDemo() {
               <p className="count-sub">The rest are dimmed. In a group chat, you would have scrolled through all of them.</p>
             </div>
             {sorted.map((n) => (
-              <div key={n.id} className={`notice u${n.u} ${n.hit ? "hit" : "miss"}`}>
+              <div key={n.id} className={`notice u${n.u}${n.hit ? "" : " miss"}`}>
                 <span className="pp" style={{ color: uCol[n.u] }}>P{n.u}</span>
                 <div><b>{n.t}</b><small>{n.ago}{n.club ? ` · ${n.club}` : ""}{n.depts ? ` · ${n.depts.join("/")}` : " · All departments"}{n.years ? ` · Year ${n.years.join(", ")}` : ""}</small></div>
                 <span className="cat">{n.cat}</span>

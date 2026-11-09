@@ -9,13 +9,6 @@ export default function Animations() {
     gsap.registerPlugin(ScrollTrigger);
     const mm = gsap.matchMedia();
 
-    const nav = document.getElementById("nav");
-    const navTrig = ScrollTrigger.create({
-      start: 40,
-      end: "max",
-      onUpdate: (self) => nav && nav.classList.toggle("scrolled", self.scroll() > 40),
-    });
-
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       gsap.utils.toArray("[data-reveal]").forEach((el) => {
         gsap.fromTo(el, { autoAlpha: 0 }, {
@@ -31,10 +24,10 @@ export default function Animations() {
       });
     });
 
-    return () => {
-      navTrig.kill();
-      mm.revert();
-    };
+    // Tell the fallback timer in layout.js that animations took over.
+    document.documentElement.classList.add("anim-ready");
+
+    return () => mm.revert();
   }, []);
 
   return null;

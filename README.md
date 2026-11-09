@@ -25,9 +25,9 @@ This repository contains the CampusCast landing page.
 
 ## Design
 
-A campus notice-board look: crumpled beige paper background, sticky-note cards with tape and pins, handwritten note titles and highlighter-style emphasis. The only animation is a soft fade-in as sections scroll into view.
+A campus notice-board look: crumpled beige paper background, sticky-note cards with bold ink outlines, hard shadows, tape and pins, and hollow (outlined) lettering for emphasis. The only animation is a soft fade-in as sections scroll into view.
 
-Fonts: Fraunces (headings), Schibsted Grotesk (body) and Caveat (handwriting), loaded with `next/font`.
+Fonts: Archivo Black (headings), Schibsted Grotesk (body) and DM Mono (labels, tags and numbers), loaded with `next/font`.
 
 ## Tech stack
 

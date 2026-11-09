@@ -6,7 +6,7 @@ export default function Roadmap() {
       <div className="container">
         <div className="sec-head" data-reveal>
           <p className="eyebrow">Roadmap</p>
-          <h2 className="display">Ship the <em className="accent">painkiller</em> first.</h2>
+          <h2 className="display">Ship the <em>painkiller</em> first.</h2>
           <p className="lede">The MVP fixes missed notices. The community layer arrives once the feed has people in it.</p>
         </div>
         <div className="road rot pins" data-stagger>

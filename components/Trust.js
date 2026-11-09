@@ -7,7 +7,7 @@ export default function Trust() {
       <div className="container trust-wrap">
         <div data-reveal>
           <p className="eyebrow">Trust and safety</p>
-          <h2 className="display">A community you can <em className="accent">actually</em> trust.</h2>
+          <h2 className="display">A community you can <em>actually</em> trust.</h2>
           <p className="lede">Connect, notes, CampusXchange and mentorship only work if everyone is real. Every account is tied to a verified college email.</p>
         </div>
         <div className="trust-list" data-stagger>
