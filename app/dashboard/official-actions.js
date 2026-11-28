@@ -4,7 +4,7 @@ import { getPublisher, requireVerified } from "../../lib/dash/ctx";
 import { RECORDS, cleanRecord } from "../../lib/dash/forms";
 
 const fail = (e) => ({ error: e?.message || "Something went wrong." });
-const PATH = { exams: "/dashboard/exams", workshops: "/dashboard/workshops", hackathons: "/dashboard/hackathons", events: "/dashboard/events" };
+const PATH = { exams: "/dashboard/exams", workshops: "/dashboard/workshops", hackathons: "/dashboard/hackathons" };
 
 // ---------- organisers: create, edit, delete (database rules decide who is allowed) ----------
 export async function saveRecord(table, id, input) {
@@ -67,8 +67,11 @@ export async function setRsvp(id, status) {
   const res = status
     ? await supabase.from("event_rsvps").upsert({ event_id: id, user_id: user.id, status }, { onConflict: "event_id,user_id" })
     : await supabase.from("event_rsvps").delete().eq("event_id", id).eq("user_id", user.id);
+  // The database refuses an answer for an event that is cancelled, unpublished or over.
+  if (res.error?.code === "42501") return { error: "This event is no longer open for answers." };
   if (res.error) return fail(res.error);
   revalidatePath("/dashboard/events");
+  revalidatePath(`/dashboard/events/${id}`);
   return { ok: true };
 }
 
