@@ -74,7 +74,7 @@ export default function RecordEditor({ table, record, clubs = [], userId, isAdmi
             : f.t === "select" ? <select id={`${table}-${f.k}`} value={v[f.k]} onChange={(e) => set(f.k, e.target.value)}>{f.options.map(([o, l]) => <option key={o} value={o}>{l}</option>)}</select>
             : f.t === "file" ? (
               <>
-                <input id={`${table}-${f.k}`} type="file" accept={table === "events" ? "image/*" : ".pdf,image/*"} onChange={(e) => upload(f.k, e.target.files[0])} disabled={busy} />
+                <input id={`${table}-${f.k}`} type="file" accept=".pdf,image/*" onChange={(e) => upload(f.k, e.target.files[0])} disabled={busy} />
                 {v[f.k]?.name && <small>Attached: {v[f.k].name} <button type="button" className="link-btn" onClick={() => set(f.k, "")}>remove</button></small>}
               </>
             ) : <input id={`${table}-${f.k}`} type={f.t === "datetime" ? "datetime-local" : f.t === "number" ? "number" : f.t === "url" ? "url" : "text"}
