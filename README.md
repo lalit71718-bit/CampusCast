@@ -285,3 +285,12 @@ On **My profile**, a person can give a **resume** (PDF or photo, up to 8 MB), th
 **Setup:** run `supabase/dashboard-10-connect-autofill.sql` in the Supabase SQL Editor after dashboard-9, and set `GEMINI_API_KEY` (needed for photos and scans) or another AI key.
 
 **Tests:** `npm run test:connect` and `node supabase/tests/stage10.mjs` (or `node supabase/tests/runtest.mjs supabase/tests/stage10.mjs dashboard-10-connect-autofill.sql`).
+
+## Workshops (posters, AI auto-fill, direct publishing)
+
+An admin or a club admin opens **Dashboard > Workshops > Post a workshop** and uploads the poster or brochure (PDF, JPG, PNG or WebP). CampusCast reads it with the same AI as the exam notices and fills a **draft**: name, what students will learn, topics, speaker, date and time, venue, seats, last time to register, fee, eligibility, what to bring, perks, contact and links (QR codes on photos are decoded). The organiser checks the fields marked **Check** and presses **Publish now**. Nobody else approves, and the AI cannot publish. Verified students (within the chosen departments and years) see the workshop with its poster and register in one tap, with the seat limit, waitlist and reminders. A new start time moves reminders, added seats move the waitlist up, and cancelling or deleting stops reminders. No notification is sent when a workshop is posted, changed or cancelled.
+
+**Setup:** run `supabase/dashboard-12-workshops.sql` in the Supabase SQL Editor (after setup.sql, dashboard-1 and dashboard-3; safe to re-run, and run it again if dashboard-3 is ever re-run). The AI keys are the same as for exams. If no seat limit is printed, 50 is used.
+
+**Tests:** `npm run test:workshops` and `supabase/tests/stage12.mjs`.
+
