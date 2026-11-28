@@ -296,6 +296,7 @@ Students share old question papers and class notes. Juniors pick a department, s
 
 Photos are turned into one PDF in the browser, which also drops location data. Word and PowerPoint files are not read by AI.
 Tests: `npm run test:papers` and `supabase/tests/stage11.mjs`.
+
 ## Cultural events (posters, AI auto-fill, direct publishing)
 
 An admin or a club admin opens **Dashboard > Cultural events > Post an event** and uploads the poster or brochure (PDF, JPG, PNG or WebP). CampusCast reads it with the same AI as the exam notices and fills a **draft**: name, kind of event, description, dates, venue, programme (competitions with their time, venue, fee and prize), guests, prizes, entry fee, last time to register, eligibility, rules, contact and links (QR codes on photos are decoded). The organiser checks the fields marked **Check** and presses **Publish now**. Nobody else approves, and the AI cannot publish. Every verified student sees published events, with a live countdown, and can mark **Interested** or **Going**; only the counts are shown, and this does not register them with the organisers. A club's followers are told once when its event is first published; students who answered are told if it is cancelled or its time or venue changes.
