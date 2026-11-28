@@ -148,7 +148,7 @@ Signed-in, ID-verified students land on `/dashboard`. Everything is stored in Su
 | --- | --- |
 | Home feed, Saved, Calendar | Notices ranked Now > Today > Soon > FYI, filters, search, read receipts, acknowledgement of Now notices, bookmarks, reminders, `.ics` download |
 | Official | Department circulars, exams (any change is re-announced as Now), workshops with seat cap, waitlist and CSV export, hackathons, cultural events and clubs |
-| Community | Connect (teammates), notes and previous papers (moderated, duplicate check), CampusXchange with live chat, free mentorship with sessions and ratings, reports and blocks |
+| Community | Connect (teammates), notes and previous papers (moderated, duplicate check), CampusXchange with live chat, free mentorship by fourth years for first to third years, with sessions and ratings, reports and blocks |
 | Admin | Publish notices (scheduled, expiring, audience preview), reach analytics, ID verification, moderation, people and roles, clubs, audit log |
 | Alerts | Live in-app bell, email for Now/Today notices and reminders, browser push, daily 7 am digest, quiet hours |
 
@@ -255,3 +255,16 @@ An admin or a club admin opens **Dashboard > Workshops > Post a workshop** and u
 
 **Tests:** `npm run test:workshops` and `supabase/tests/stage12.mjs`.
 
+## Free mentorship
+
+Fourth-year students mentor first, second and third years for free. The database enforces this.
+
+- **Year of study** comes from the college email (`25ug1byai282@bmsit.in` = joined 2025) and moves up every 1 August. The year typed at verification is not used. A super-admin can correct it under People & roles (lateral entry, repeated year, unusual email). Postgraduates, faculty and other colleges take no part.
+- **Limits:** a mentor takes up to 3 students, a student has up to 2 open requests, and unanswered requests expire after 7 days.
+- **Sessions:** the mentor proposes a time with a link or campus place, the student confirms it, and either side can cancel.
+- **Safety:** admins can suspend a mentor from a report (Admin > Moderation). Blocking someone ends the mentorship between the two.
+- **Graduation:** from 1 August a graduated mentor is hidden and open requests close. History is kept.
+
+**Setup:** run `supabase/dashboard-15-mentorship.sql` in the Supabase SQL Editor (after setup.sql, dashboard-1 and dashboard-4; safe to re-run, and run it again if dashboard-4 is ever re-run).
+
+**Test:** `supabase/tests/stage15.mjs`. Offline: `node supabase/tests/runtest.mjs supabase/tests/stage15.mjs dashboard-15-mentorship.sql` (the runner comes with the Connect profiles pull request).

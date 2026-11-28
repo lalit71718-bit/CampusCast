@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { requireAdmin, requireVerified } from "../../lib/dash/ctx";
+import { requireAdmin, requireSuper, requireVerified } from "../../lib/dash/ctx";
 
 const fail = (e) => ({ error: e?.code === "23505" ? "That already exists." : e?.message || "Something went wrong." });
 const done = (path) => { if (path) revalidatePath(path); return { ok: true }; };
@@ -129,7 +129,7 @@ export async function saveMentorProfile(input) {
   const row = { user_id: user.id, domains: list(input.domains), bio: str(input.bio, 600) || null, availability: str(input.availability, 200) || null, active: input.active !== false };
   if (!row.domains.length) return { error: "Add at least one domain you can help with." };
   const { error } = await supabase.from("mentor_profiles").upsert(row, { onConflict: "user_id" });
-  if (error?.code === "42501") return { error: "Mentoring is open to students in year 3 and above." };
+  if (error?.code === "42501") return { error: "Only fourth-year students can mentor." };
   return error ? fail(error) : done("/dashboard/mentors");
 }
 export async function stopMentoring() {
@@ -161,6 +161,33 @@ export async function rateSession(id, rating, feedback) {
   const { supabase } = await requireVerified();
   const { error } = await supabase.rpc("rate_session", { p_session: id, p_rating: Number(rating), p_feedback: str(feedback, 500) });
   return error ? fail(error) : done("/dashboard/mentors");
+}
+
+// withdraw a pending request, or end an accepted mentorship
+export async function endMentorRequest(id) {
+  const { supabase } = await requireVerified();
+  const { error } = await supabase.rpc("end_mentor_request", { p_request: id });
+  return error ? fail(error) : done("/dashboard/mentors");
+}
+export async function confirmSession(id) {
+  const { supabase } = await requireVerified();
+  const { error } = await supabase.rpc("confirm_session", { p_session: id });
+  return error ? fail(error) : done("/dashboard/mentors");
+}
+export async function cancelSession(id) {
+  const { supabase } = await requireVerified();
+  const { error } = await supabase.rpc("cancel_session", { p_session: id });
+  return error ? fail(error) : done("/dashboard/mentors");
+}
+export async function suspendMentor(userId, suspend, reason) {
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.rpc("suspend_mentor", { p_user: userId, p_suspend: !!suspend, p_reason: str(reason, 300) || null });
+  return error ? fail(error) : done("/dashboard/admin/moderation");
+}
+export async function setStudyYear(userId, year) {
+  const { supabase } = await requireSuper();
+  const { error } = await supabase.rpc("set_study_year", { p_user: userId, p_year: year ? Number(year) : null });
+  return error ? fail(error) : done("/dashboard/admin/people");
 }
 
 // ---------- moderation ----------

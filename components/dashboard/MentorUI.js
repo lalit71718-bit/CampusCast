@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Check, Star, X } from "lucide-react";
-import { completeSession, rateSession, requestMentor, respondMentor, saveMentorProfile, scheduleSession, stopMentoring } from "../../app/dashboard/community-actions";
+import { cancelSession, completeSession, confirmSession, endMentorRequest, rateSession, requestMentor, respondMentor, saveMentorProfile, scheduleSession, stopMentoring } from "../../app/dashboard/community-actions";
 import { useAct } from "./Common";
 
 export function MentorProfileForm({ mine }) {
@@ -20,9 +20,20 @@ export function MentorProfileForm({ mine }) {
       {msg && <p className="form-msg err" role="alert">{msg}</p>}
       <div className="notice-actions">
         <button className="btn" disabled={pending}>Save</button><button type="button" className="btn-s" onClick={() => setOpen(false)}>Cancel</button>
-        {mine && <button type="button" className="btn-s ghost" disabled={pending} onClick={() => { if (confirm("Stop mentoring and remove your profile?")) act(() => stopMentoring(), () => setOpen(false)); }}>Remove profile</button>}
+        {mine && <button type="button" className="btn-s ghost" disabled={pending} onClick={() => { if (confirm("Stop mentoring and remove your profile? Your open mentorships will end.")) act(() => stopMentoring(), () => setOpen(false)); }}>Remove profile</button>}
       </div>
     </form>
+  );
+}
+
+// For someone who has a mentor profile but may no longer mentor (graduated or suspended).
+export function RemoveMentorProfile() {
+  const { msg, pending, act } = useAct();
+  return (
+    <p className="audience">Your mentor profile is hidden.{" "}
+      <button className="btn-s ghost" disabled={pending} onClick={() => { if (confirm("Remove your mentor profile?")) act(() => stopMentoring()); }}>Remove profile</button>
+      {msg && <span className="inline-msg" role="alert">{msg}</span>}
+    </p>
   );
 }
 
@@ -43,38 +54,63 @@ export function AskMentor({ mentorId }) {
   );
 }
 
-// One mentoring request with everything that can happen to it: accept, schedule, mark done, rate.
-export function RequestCard({ r, session, asMentor, person }) {
+const when = (iso) => new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" });
+const box = { padding: "6px 10px", border: "1.5px solid var(--line)", borderRadius: 10, background: "var(--card)", font: "inherit" };
+const COLORS = { pending: "#f3b63f", accepted: "#7fb48a" };
+
+// One session: confirm or cancel an upcoming time, mark it done, rate it.
+function Session({ s, r, asMentor, now, ready }) {
+  const { msg, pending, act } = useAct();
+  const [rating, setRating] = useState(0); const [fb, setFb] = useState("");
+  const upcoming = Date.parse(s.scheduled_at) > Date.parse(now);
+  const live = r.status === "accepted" && upcoming && (s.status === "proposed" || s.status === "scheduled");
+  const label = s.status === "done" ? "Session done" : s.status === "cancelled" ? "Cancelled" : s.status === "proposed" ? (asMentor ? "Waiting for the student to confirm" : "Proposed time") : "Confirmed session";
+  return (
+    <>
+      <p className="when-line">{label}: {when(s.scheduled_at)}{s.note && <> · {s.note}</>}</p>
+      {s.rating && <p className="acked"><Star size={16} /> Rated {s.rating}/5{s.feedback ? `: “${s.feedback}”` : ""}</p>}
+      <div className="notice-actions">
+        {ready && live && !asMentor && s.status === "proposed" && <button className="btn-s clay" disabled={pending} onClick={() => act(() => confirmSession(s.id))}><Check size={16} /> Confirm time</button>}
+        {ready && live && <button className="btn-s" disabled={pending} onClick={() => { if (confirm("Cancel this session time?")) act(() => cancelSession(s.id)); }}><X size={16} /> {!asMentor && s.status === "proposed" ? "This time does not work" : "Cancel session"}</button>}
+        {asMentor && s.status === "scheduled" && !upcoming && <button className="btn-s clay" disabled={pending} onClick={() => act(() => completeSession(s.id))}><Check size={16} /> Mark session done</button>}
+        {!asMentor && s.status === "done" && !s.rating && (
+          <form className="notice-actions" style={{ margin: 0 }} onSubmit={(e) => { e.preventDefault(); act(() => rateSession(s.id, rating, fb)); }}>
+            <span role="radiogroup" aria-label="Rating">{[1, 2, 3, 4, 5].map((n) => (
+              <button type="button" key={n} role="radio" aria-checked={rating === n} aria-label={`${n} star${n > 1 ? "s" : ""}`} className="icon-btn" style={{ display: "inline-grid", color: n <= rating ? "var(--clay)" : "inherit" }} onClick={() => setRating(n)}><Star size={20} fill={n <= rating ? "currentColor" : "none"} /></button>))}</span>
+            <input type="text" value={fb} maxLength={500} onChange={(e) => setFb(e.target.value)} placeholder="One line of feedback" aria-label="Feedback" style={{ ...box, flex: 1, minWidth: 160 }} />
+            <button className="btn-s clay" disabled={pending || !rating}>Submit rating</button>
+          </form>)}
+        {msg && <span className="inline-msg" role="alert">{msg}</span>}
+      </div>
+    </>
+  );
+}
+
+// One mentoring request with everything that can happen to it.
+export function RequestCard({ r, sessions, asMentor, person, now, ready }) {
   const { msg, pending, act } = useAct();
   const [at, setAt] = useState(""); const [note, setNote] = useState("");
-  const [rating, setRating] = useState(0); const [fb, setFb] = useState("");
-  const when = (iso) => new Date(iso).toLocaleString("en-IN", { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" });
+  const booked = sessions.some((s) => (s.status === "proposed" || s.status === "scheduled") && Date.parse(s.scheduled_at) > Date.parse(now));
+  const endLabel = r.status === "accepted" ? "End mentorship" : !asMentor && r.status === "pending" ? "Withdraw request" : null;
   return (
-    <article className="notice" style={{ "--u": r.status === "accepted" ? "#7fb48a" : r.status === "declined" ? "#bbb" : "#f3b63f" }}>
-      <div className="notice-top"><span className="pill soft" style={{ "--c": r.status === "accepted" ? "#7fb48a" : "#f3b63f" }}>{r.status}</span><span className="when">{asMentor ? "You are the mentor" : "You asked for help"}</span></div>
+    <article className="notice" style={{ "--u": COLORS[r.status] || "#bbb" }}>
+      <div className="notice-top"><span className="pill soft" style={{ "--c": COLORS[r.status] || "#bbb" }}>{r.status}</span><span className="when">{asMentor ? "You are the mentor" : "You asked for help"}</span></div>
       <h3 className="notice-title">{r.topic}</h3>
       <p className="audience">{asMentor ? "Mentee" : "Mentor"}: {person?.full_name || "a student"}{person?.year ? ` · Year ${person.year}` : ""}</p>
       {r.message && <p>“{r.message}”</p>}
-      {session && <p className="when-line">{session.status === "done" ? "Session done" : session.status === "cancelled" ? "Session cancelled" : "Session"}: {when(session.scheduled_at)}{session.note && <> · {session.note}</>}</p>}
-      {session?.rating && <p className="acked"><Star size={16} /> Rated {session.rating}/5{session.feedback ? `: “${session.feedback}”` : ""}</p>}
+      {r.closed_reason && <p className="inline-msg">{r.closed_reason}</p>}
+      {sessions.map((s) => <Session key={s.id} s={s} r={r} asMentor={asMentor} now={now} ready={ready} />)}
       <div className="notice-actions">
-        {asMentor && r.status === "pending" && <>
+        {ready && asMentor && r.status === "pending" && <>
           <button className="btn-s clay" disabled={pending} onClick={() => act(() => respondMentor(r.id, true))}><Check size={16} /> Accept</button>
           <button className="btn-s" disabled={pending} onClick={() => act(() => respondMentor(r.id, false))}><X size={16} /> Decline</button></>}
-        {asMentor && r.status === "accepted" && !session && (
-          <form className="notice-actions" style={{ margin: 0 }} onSubmit={(e) => { e.preventDefault(); act(() => scheduleSession(r.id, new Date(at).toISOString(), note)); }}>
-            <input type="datetime-local" required value={at} onChange={(e) => setAt(e.target.value)} aria-label="Session time" style={{ padding: "6px 10px", border: "1.5px solid var(--line)", borderRadius: 10, background: "var(--card)", font: "inherit" }} />
-            <input type="text" value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} placeholder="Meeting link or place" aria-label="Meeting link or place" style={{ padding: "6px 10px", border: "1.5px solid var(--line)", borderRadius: 10, background: "var(--card)", font: "inherit" }} />
-            <button className="btn-s clay" disabled={pending}>Schedule</button>
+        {ready && asMentor && r.status === "accepted" && !booked && (
+          <form className="notice-actions" style={{ margin: 0 }} onSubmit={(e) => { e.preventDefault(); act(() => scheduleSession(r.id, new Date(at).toISOString(), note), () => { setAt(""); setNote(""); }); }}>
+            <input type="datetime-local" required value={at} onChange={(e) => setAt(e.target.value)} aria-label="Session time" style={box} />
+            <input type="text" required value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} placeholder="Meeting link or campus place" aria-label="Meeting link or campus place" style={box} />
+            <button className="btn-s clay" disabled={pending}>{sessions.length ? "Propose another time" : "Propose time"}</button>
           </form>)}
-        {asMentor && session?.status === "scheduled" && <button className="btn-s clay" disabled={pending} onClick={() => act(() => completeSession(session.id))}><Check size={16} /> Mark session done</button>}
-        {!asMentor && session?.status === "done" && !session.rating && (
-          <form className="notice-actions" style={{ margin: 0 }} onSubmit={(e) => { e.preventDefault(); act(() => rateSession(session.id, rating, fb)); }}>
-            <span role="radiogroup" aria-label="Rating">{[1, 2, 3, 4, 5].map((n) => (
-              <button type="button" key={n} role="radio" aria-checked={rating === n} aria-label={`${n} star${n > 1 ? "s" : ""}`} className="icon-btn" style={{ display: "inline-grid", color: n <= rating ? "var(--clay)" : "inherit" }} onClick={() => setRating(n)}><Star size={20} fill={n <= rating ? "currentColor" : "none"} /></button>))}</span>
-            <input type="text" value={fb} maxLength={500} onChange={(e) => setFb(e.target.value)} placeholder="One line of feedback" aria-label="Feedback" style={{ flex: 1, minWidth: 160, padding: "6px 10px", border: "1.5px solid var(--line)", borderRadius: 10, background: "var(--card)", font: "inherit" }} />
-            <button className="btn-s clay" disabled={pending || !rating}>Submit rating</button>
-          </form>)}
+        {ready && endLabel && <button className="btn-s ghost" disabled={pending} onClick={() => { if (confirm(`${endLabel}?`)) act(() => endMentorRequest(r.id)); }}>{endLabel}</button>}
         {msg && <span className="inline-msg" role="alert">{msg}</span>}
       </div>
     </article>
